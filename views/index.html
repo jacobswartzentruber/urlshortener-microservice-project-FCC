@@ -14,12 +14,17 @@
   <body>
     <h1>URL Shortener Microservice</h1>
     <main>
+      <p>Welcome to the URL Shortener Microservice.</p>
+      <p>Fill out the form below with a valid HTTP/HTTPS URL and receive a
+        short URL linked to the original URL you entered.</p>
+      <p>By visiting the path /api/shorturl/&lt;your shorturl here&gt;
+        it will redirect you to the original URL entered.</p>
       <section>
         <form action="api/shorturl" method="POST">
           <fieldset>
             <legend>URL Shortener</legend>
             <label for="url_input">URL:</label>
-            <input id="url_input" type="text" name="url" placeholder="https://www.freecodecamp.org/" />
+            <input id="url_input" type="text" name="url" placeholder="https://github.com/jacobswartzentruber" />
             <input type="submit" value="POST URL" />
           </fieldset>
         </form>
