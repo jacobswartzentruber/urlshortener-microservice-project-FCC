@@ -4,7 +4,8 @@ const cors = require('cors');
 const dns = require('dns');
 const app = express();
 const { Schema } = require('mongoose');
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+const validUrl = require('valid-url');
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -32,27 +33,33 @@ app.get('/', function(req, res) {
 });
 
 app.post('/api/shorturl', function(req, res, next) {
-  //Validate form URL string
-  dns.lookup(req.body.url, (err, address) => {
-    if(err) {
-      res.json({error: 'invalid url'});
-    }
-    else{
-      //Calculate short URL based on number of documents
-      Link.countDocuments({}, function(err, count){
+  //Validate form long URL string
+  let originalUrl = validUrl.isWebUri(req.body.url);
+  if(!originalUrl){
+    res.json({error: 'invalid url'});
+  }
+  else{
+    //Calculate short URL based on number of documents
+    Link.countDocuments({}, function(err, count){
+      if(err) return next(err);
+
+      let link = new Link({original_url: req.body.url, short_url: count});
+
+      //Save to DB and return a JSON object with original_url and short_url
+      link.save(function(err, data) {
         if(err) return next(err);
-
-        let link = new Link({original_url: req.body.url, short_url: count});
-
-        //Save to DB and return a JSON object with original_url and short_url
-        link.save(function(err, data) {
-          if(err) return next(err);
-          res.json({original_url: req.body.url, short_url: count});
-        })
+        res.json({original_url: req.body.url, short_url: count});
       })
-    }
+    })
+  }
+});
+
+app.get("/api/shorturl/:shorturl", (req, res, next) => {
+  //Get original URL from short URL param and redirect
+  Link.findOne({short_url: req.params.shorturl}, (err, link) => {
+    if(err) return next(err);
+    res.redirect(302, link.original_url);
   })
-  
 });
 
 app.listen(port, function() {
