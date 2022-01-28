@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: "false"}));
 
 //Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(port);
 
 //Database Schema and Models
 const linkSchema = new Schema({
